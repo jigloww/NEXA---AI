@@ -10,6 +10,10 @@ class MemoryService:
 
         initialize_database()
 
+    # ==========================
+    # SHORT TERM MEMORY
+    # ==========================
+
     def add_message(
         self,
         role,
@@ -73,3 +77,78 @@ class MemoryService:
 
         conn.commit()
         conn.close()
+
+    # ==========================
+    # LONG TERM MEMORY
+    # ==========================
+
+    def save_memory(
+        self,
+        key,
+        value
+    ):
+
+        conn = get_connection()
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            INSERT OR REPLACE INTO user_memory
+            (
+                key,
+                value
+            )
+            VALUES (?, ?)
+            """,
+            (key, value)
+        )
+
+        conn.commit()
+        conn.close()
+
+    def get_memory(
+        self,
+        key
+    ):
+
+        conn = get_connection()
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT value
+            FROM user_memory
+            WHERE key = ?
+            """,
+            (key,)
+        )
+
+        row = cursor.fetchone()
+
+        conn.close()
+
+        if row:
+            return row[0]
+
+        return None
+
+    def get_all_memories(self):
+
+        conn = get_connection()
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT key, value
+            FROM user_memory
+            """
+        )
+
+        rows = cursor.fetchall()
+
+        conn.close()
+
+        return rows

@@ -31,10 +31,16 @@ while True:
 
     try:
 
-        response = agent.chat(user_input)
+        response = agent.chat(
+            user_input
+        )
 
-        print(f"\nNEXA : {response}")
+        print(
+            f"\nNEXA : {response}"
+        )
 
     except Exception as e:
 
-        print(f"\nError : {e}")
+        print(
+            f"\nError : {e}"
+        )
