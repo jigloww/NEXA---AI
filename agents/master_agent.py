@@ -12,6 +12,45 @@ class MasterAgent:
 
     def chat(self, user_message):
 
+        # ==========================
+        # SMART MEMORY
+        # ==========================
+
+        user_lower = user_message.lower()
+
+        if user_lower.startswith("nama saya "):
+
+            name = user_message[10:].strip()
+
+            self.memory.save_memory(
+                "user_name",
+                name
+            )
+
+            return (
+                f"Baik, saya akan mengingat bahwa nama Anda {name}."
+            )
+
+        if "siapa nama saya" in user_lower:
+
+            name = self.memory.get_memory(
+                "user_name"
+            )
+
+            if name:
+
+                return (
+                    f"Nama Anda adalah {name}."
+                )
+
+            return (
+                "Maaf, saya belum mengetahui nama Anda."
+            )
+
+        # ==========================
+        # SHORT TERM MEMORY
+        # ==========================
+
         self.memory.add_message(
             "User",
             user_message
