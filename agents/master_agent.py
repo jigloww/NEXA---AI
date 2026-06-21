@@ -8,6 +8,7 @@ class MasterAgent:
     def __init__(self):
 
         self.memory = MemoryService()
+        self.llm = LLMService()
 
     def chat(self, user_message):
 
@@ -30,7 +31,9 @@ Riwayat Percakapan:
 Jawablah sebagai NEXA.
 """
 
-        response = generate_response(prompt)
+        response = self.llm.generate_response(
+            prompt
+        )
 
         self.memory.add_message(
             "NEXA",
