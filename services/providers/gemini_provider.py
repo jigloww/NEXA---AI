@@ -1,10 +1,9 @@
-# services/providers/gemini_provider.py
-
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class GeminiProvider:
 
@@ -25,8 +24,23 @@ class GeminiProvider:
 
     def generate(self, prompt):
 
-        response = self.model.generate_content(
-            prompt
-        )
+        try:
 
-        return response.text
+            response = self.model.generate_content(
+                prompt
+            )
+
+            return response.text
+
+        except Exception as e:
+
+            error_text = str(e)
+
+            if "429" in error_text:
+                return (
+                    "Terjadi kesalahan pada API Gemini, Anda sudah mencapai limit penggunaan."
+                )
+
+            return (
+                "Terjadi kesalahan pada API Gemini. Silakan coba lagi nanti."
+            )
