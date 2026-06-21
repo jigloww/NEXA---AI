@@ -1,4 +1,4 @@
-from services.llm_service import generate_response
+from services.llm_service import LLMService
 from services.memory_service import MemoryService
 from services.prompt_service import load_system_prompt
 

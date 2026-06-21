@@ -1,19 +1,18 @@
-import os
-import google.generativeai as genai
-from dotenv import load_dotenv
+from services.providers.gemini_provider import (
+    GeminiProvider
+)
 
-load_dotenv()
+class LLMService:
 
-api_key = os.getenv("GEMINI_API_KEY")
+    def __init__(self):
 
-if not api_key:
-    raise ValueError("GEMINI_API_KEY tidak ditemukan di file .env")
+        self.provider = GeminiProvider()
 
-genai.configure(api_key=api_key)
+    def generate_response(
+        self,
+        prompt
+    ):
 
-model = genai.GenerativeModel("gemini-2.5-flash")
-
-
-def generate_response(prompt):
-    response = model.generate_content(prompt)
-    return response.text
+        return self.provider.generate(
+            prompt
+        )

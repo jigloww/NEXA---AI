@@ -1,20 +1,75 @@
-class MemoryService:
-    def __init__(self):
-        self.chat_history = []
+from database.database import (
+    get_connection,
+    initialize_database
+)
 
-    def add_message(self, role, content):
-        self.chat_history.append({
-            "role": role,
-            "content": content
-        })
+
+class MemoryService:
+
+    def __init__(self):
+
+        initialize_database()
+
+    def add_message(
+        self,
+        role,
+        content
+    ):
+
+        conn = get_connection()
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            INSERT INTO memories (
+                role,
+                content
+            )
+            VALUES (?, ?)
+            """,
+            (role, content)
+        )
+
+        conn.commit()
+        conn.close()
 
     def get_context(self):
+
+        conn = get_connection()
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT role, content
+            FROM memories
+            ORDER BY id ASC
+        """)
+
+        rows = cursor.fetchall()
+
+        conn.close()
+
         context = ""
 
-        for message in self.chat_history:
-            context += f"{message['role']}: {message['content']}\n"
+        for role, content in rows:
+
+            context += (
+                f"{role}: "
+                f"{content}\n"
+            )
 
         return context
 
     def clear(self):
-        self.chat_history = []
+
+        conn = get_connection()
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "DELETE FROM memories"
+        )
+
+        conn.commit()
+        conn.close()
