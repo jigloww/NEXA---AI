@@ -2,6 +2,8 @@ from services.llm_service import LLMService
 from services.memory_service import MemoryService
 from services.prompt_service import load_system_prompt
 
+from services.profile_memory_service import ProfileMemoryService
+
 from agents.academic_agent import AcademicAgent
 from agents.productivity_agent import ProductivityAgent
 from agents.business_agent import BusinessAgent
@@ -11,9 +13,12 @@ from agents.investment_agent import InvestmentAgent
 class MasterAgent:
 
     def __init__(self):
-
         self.memory = MemoryService()
         self.llm = LLMService()
+
+        self.profile_memory = ProfileMemoryService(
+            self.memory
+        )
 
         self.academic = AcademicAgent()
         self.productivity = ProductivityAgent()
@@ -24,13 +29,22 @@ class MasterAgent:
 
         user_lower = user_message.lower().strip()
 
-        # ==================================================
-        # AUTO MEMORY EXTRACTION
-        # ==================================================
+        # ==========================================
+        # PROFILE MEMORY
+        # ==========================================
 
-        if user_lower.startswith(
-            "saya ingin menjadi "
-        ):
+        profile_response = self.profile_memory.handle(
+            user_message
+        )
+
+        if profile_response:
+            return profile_response
+
+        # ==========================================
+        # AUTO MEMORY EXTRACTION
+        # ==========================================
+
+        if user_lower.startswith("saya ingin menjadi "):
 
             goal = user_message[
                 len("saya ingin menjadi "):
@@ -45,10 +59,7 @@ class MasterAgent:
                 f"Baik, saya akan mengingat bahwa target karier Anda adalah {goal}."
             )
 
-
-        if user_lower.startswith(
-            "saya sedang belajar "
-        ):
+        if user_lower.startswith("saya sedang belajar "):
 
             topic = user_message[
                 len("saya sedang belajar "):
@@ -63,10 +74,7 @@ class MasterAgent:
                 f"Baik, saya akan mengingat bahwa Anda sedang belajar {topic}."
             )
 
-
-        if user_lower.startswith(
-            "saya sedang membuat "
-        ):
+        if user_lower.startswith("saya sedang membuat "):
 
             project = user_message[
                 len("saya sedang membuat "):
@@ -81,387 +89,77 @@ class MasterAgent:
                 f"Baik, saya akan mengingat bahwa Anda sedang membuat {project}."
             )
 
-        # ==================================================
-        # SMART MEMORY
-        # ==================================================
-
-        # USER NAME
-
-        if user_lower.startswith("nama saya "):
-
-            name = user_message[10:].strip()
-
-            self.memory.save_memory(
-                "user_name",
-                name
-            )
-
-            return (
-                f"Baik, saya akan mengingat bahwa nama Anda {name}."
-            )
-
-        if "siapa nama saya" in user_lower:
-
-            name = self.memory.get_memory(
-                "user_name"
-            )
-
-            if name:
-
-                return (
-                    f"Nama Anda adalah {name}."
-                )
-
-            return (
-                "Saya belum mengetahui nama Anda."
-            )
-
-        # CURRENT PROJECT
-
-        if user_lower.startswith(
-            "saya sedang membangun "
-        ):
-
-            project = user_message[
-                len("saya sedang membangun "):
-            ].strip()
-
-            self.memory.save_memory(
-                "current_project",
-                project
-            )
-
-            return (
-                f"Baik, saya akan mengingat proyek Anda: {project}."
-            )
-
-        if (
-            "apa proyek saya" in user_lower
-            or
-            "proyek yang sedang saya kerjakan" in user_lower
-        ):
-
-            project = self.memory.get_memory(
-                "current_project"
-            )
-
-            if project:
-
-                return (
-                    f"Saat ini Anda sedang mengerjakan {project}."
-                )
-
-            return (
-                "Saya belum mengetahui proyek Anda."
-            )
-
-        # FAVORITE LANGUAGE
-
-        if user_lower.startswith(
-            "bahasa favorit saya "
-        ):
-
-            language = user_message[
-                len("bahasa favorit saya "):
-            ].strip()
-
-            self.memory.save_memory(
-                "favorite_language",
-                language
-            )
-
-            return (
-                f"Baik, saya akan mengingat bahwa bahasa favorit Anda adalah {language}."
-            )
-
-        if (
-            "bahasa favorit saya apa" in user_lower
-            or
-            "apa bahasa favorit saya" in user_lower
-        ):
-
-            language = self.memory.get_memory(
-                "favorite_language"
-            )
-
-            if language:
-
-                return (
-                    f"Bahasa favorit Anda adalah {language}."
-                )
-
-            return (
-                "Saya belum mengetahui bahasa favorit Anda."
-            )
-        
-        # ==========================
-        # EDUCATION
-        # ==========================
-
-        if user_lower.startswith(
-            "saya mahasiswa "
-        ):
-
-            education = user_message[
-                len("saya mahasiswa "):
-            ].strip()
-
-            self.memory.save_memory(
-                "education",
-                education
-            )
-
-            return (
-                f"Baik, saya akan mengingat bahwa Anda mahasiswa {education}."
-            )
-
-        if (
-            "apa pendidikan saya" in user_lower
-            or
-            "saya mahasiswa apa" in user_lower
-            or
-            "pendidikan saya apa" in user_lower
-        ):
-
-            education = self.memory.get_memory(
-                "education"
-            )
-
-            if education:
-
-                return (
-                    f"Anda adalah mahasiswa {education}."
-                )
-
-            return (
-                "Saya belum mengetahui pendidikan Anda."
-            )
-        
-        # ==========================
-        # CAREER GOAL
-        # ==========================
-
-        if user_lower.startswith(
-            "target karier saya "
-        ):
-
-            goal = user_message[
-                len("target karier saya "):
-            ].strip()
-
-            self.memory.save_memory(
-                "career_goal",
-                goal
-            )
-
-            return (
-                f"Baik, saya akan mengingat bahwa target karier Anda adalah {goal}."
-            )
-
-        if (
-            "apa target karier saya" in user_lower
-            or
-            "target karier saya apa" in user_lower
-        ):
-
-            goal = self.memory.get_memory(
-                "career_goal"
-            )
-
-            if goal:
-
-                return (
-                    f"Target karier Anda adalah {goal}."
-                )
-
-            return (
-                "Saya belum mengetahui target karier Anda."
-            )
-        
-        # ==========================
-        # CURRENT LEARNING
-        # ==========================
-
-        if (
-            "apa yang sedang saya pelajari"
-            in user_lower
-            or
-            "saya sedang belajar apa"
-            in user_lower
-        ):
-
-            learning = self.memory.get_memory(
-                "current_learning"
-            )
-
-            if learning:
-
-                return (
-                    f"Saat ini Anda sedang belajar {learning}."
-                )
-
-            return (
-                "Saya belum mengetahui apa yang sedang Anda pelajari."
-            )
-        
-        # ==========================
-        # SKILL
-        # ==========================
-
-        if user_lower.startswith(
-            "skill saya "
-        ):
-
-            skill = user_message[
-                len("skill saya "):
-            ].strip()
-
-            self.memory.save_memory(
-                "skill",
-                skill
-            )
-
-            return (
-                f"Baik, saya akan mengingat bahwa skill utama Anda adalah {skill}."
-            )
-
-        if (
-            "apa skill saya" in user_lower
-            or
-            "skill saya apa" in user_lower
-        ):
-
-            skill = self.memory.get_memory(
-                "skill"
-            )
-
-            if skill:
-
-                return (
-                    f"Skill utama Anda adalah {skill}."
-                )
-
-            return (
-                "Saya belum mengetahui skill Anda."
-            )
-        
-        # ==========================
-        # FAVORITE FRAMEWORK
-        # ==========================
-
-        if user_lower.startswith(
-            "framework favorit saya "
-        ):
-
-            framework = user_message[
-                len("framework favorit saya "):
-            ].strip()
-
-            self.memory.save_memory(
-                "favorite_framework",
-                framework
-            )
-
-            return (
-                f"Baik, saya akan mengingat bahwa framework favorit Anda adalah {framework}."
-            )
-
-        if (
-            "framework favorit saya apa" in user_lower
-            or
-            "apa framework favorit saya" in user_lower
-        ):
-
-            framework = self.memory.get_memory(
-                "favorite_framework"
-            )
-
-            if framework:
-
-                return (
-                    f"Framework favorit Anda adalah {framework}."
-                )
-
-            return (
-                "Saya belum mengetahui framework favorit Anda."
-            )
-    
-
-        # ==================================================
+        # ==========================================
         # AGENT ROUTER
-        # ==================================================
+        # ==========================================
 
-        # Academic Agent
+        academic_keywords = [
+            "kuliah",
+            "tugas",
+            "skripsi",
+            "knn",
+            "python",
+            "flutter"
+        ]
+
+        productivity_keywords = [
+            "jadwal",
+            "target",
+            "produktif",
+            "to-do"
+        ]
+
+        business_keywords = [
+            "bisnis",
+            "startup",
+            "usaha",
+            "marketing",
+            "monetisasi"
+        ]
+
+        investment_keywords = [
+            "investasi",
+            "saham",
+            "reksadana",
+            "etf",
+            "keuangan"
+        ]
 
         if any(
             keyword in user_lower
-            for keyword in [
-                "kuliah",
-                "tugas",
-                "skripsi",
-                "knn",
-                "python",
-                "flutter"
-            ]
+            for keyword in academic_keywords
         ):
-
             return self.academic.handle(
                 user_message
             )
 
-        # Productivity Agent
-
         if any(
             keyword in user_lower
-            for keyword in [
-                "jadwal",
-                "target",
-                "produktif",
-                "to-do"
-            ]
+            for keyword in productivity_keywords
         ):
-
             return self.productivity.handle(
                 user_message
             )
 
-        # Business Agent
-
         if any(
             keyword in user_lower
-            for keyword in [
-                "bisnis",
-                "startup",
-                "usaha",
-                "marketing",
-                "monetisasi"
-            ]
+            for keyword in business_keywords
         ):
-
             return self.business.handle(
                 user_message
             )
 
-        # Investment Agent
-
         if any(
             keyword in user_lower
-            for keyword in [
-                "investasi",
-                "saham",
-                "reksadana",
-                "etf",
-                "keuangan"
-            ]
+            for keyword in investment_keywords
         ):
-
             return self.investment.handle(
                 user_message
             )
 
-        # ==================================================
+        # ==========================================
         # SHORT TERM MEMORY
-        # ==================================================
+        # ==========================================
 
         self.memory.add_message(
             "User",
@@ -470,18 +168,13 @@ class MasterAgent:
 
         context = self.memory.get_context()
 
-        # ==================================================
+        # ==========================================
         # LONG TERM MEMORY INJECTION
-        # ==================================================
-
-        all_memories = (
-            self.memory.get_all_memories()
-        )
+        # ==========================================
 
         memory_context = ""
 
-        for key, value in all_memories:
-
+        for key, value in self.memory.get_all_memories():
             memory_context += (
                 f"{key}: {value}\n"
             )
