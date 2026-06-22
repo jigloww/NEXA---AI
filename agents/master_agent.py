@@ -3,6 +3,9 @@ from services.memory_service import MemoryService
 from services.prompt_service import load_system_prompt
 
 from services.profile_memory_service import ProfileMemoryService
+from services.auto_memory_service import (
+    AutoMemoryService
+)
 
 from agents.academic_agent import AcademicAgent
 from agents.productivity_agent import ProductivityAgent
@@ -18,6 +21,11 @@ class MasterAgent:
 
         self.profile_memory = ProfileMemoryService(
             self.memory
+        )
+        self.auto_memory = (
+            AutoMemoryService(
+                self.memory
+            )
         )
 
         self.academic = AcademicAgent()
