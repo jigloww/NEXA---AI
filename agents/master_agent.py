@@ -135,6 +135,166 @@ class MasterAgent:
             return (
                 "Saya belum mengetahui bahasa favorit Anda."
             )
+        
+        # ==========================
+        # EDUCATION
+        # ==========================
+
+        if user_lower.startswith(
+            "saya mahasiswa "
+        ):
+
+            education = user_message[
+                len("saya mahasiswa "):
+            ].strip()
+
+            self.memory.save_memory(
+                "education",
+                education
+            )
+
+            return (
+                f"Baik, saya akan mengingat bahwa Anda mahasiswa {education}."
+            )
+
+        if (
+            "apa pendidikan saya" in user_lower
+            or
+            "saya mahasiswa apa" in user_lower
+        ):
+
+            education = self.memory.get_memory(
+                "education"
+            )
+
+            if education:
+
+                return (
+                    f"Anda adalah mahasiswa {education}."
+                )
+
+            return (
+                "Saya belum mengetahui pendidikan Anda."
+            )
+        
+        # ==========================
+        # CAREER GOAL
+        # ==========================
+
+        if user_lower.startswith(
+            "target karier saya "
+        ):
+
+            goal = user_message[
+                len("target karier saya "):
+            ].strip()
+
+            self.memory.save_memory(
+                "career_goal",
+                goal
+            )
+
+            return (
+                f"Baik, saya akan mengingat bahwa target karier Anda adalah {goal}."
+            )
+
+        if (
+            "apa target karier saya" in user_lower
+        ):
+
+            goal = self.memory.get_memory(
+                "career_goal"
+            )
+
+            if goal:
+
+                return (
+                    f"Target karier Anda adalah {goal}."
+                )
+
+            return (
+                "Saya belum mengetahui target karier Anda."
+            )
+        
+        # ==========================
+        # SKILL
+        # ==========================
+
+        if user_lower.startswith(
+            "skill saya "
+        ):
+
+            skill = user_message[
+                len("skill saya "):
+            ].strip()
+
+            self.memory.save_memory(
+                "skill",
+                skill
+            )
+
+            return (
+                f"Baik, saya akan mengingat bahwa skill utama Anda adalah {skill}."
+            )
+
+        if (
+            "apa skill saya" in user_lower
+        ):
+
+            skill = self.memory.get_memory(
+                "skill"
+            )
+
+            if skill:
+
+                return (
+                    f"Skill utama Anda adalah {skill}."
+                )
+
+            return (
+                "Saya belum mengetahui skill Anda."
+            )
+        
+        # ==========================
+        # FAVORITE FRAMEWORK
+        # ==========================
+
+        if user_lower.startswith(
+            "framework favorit saya "
+        ):
+
+            framework = user_message[
+                len("framework favorit saya "):
+            ].strip()
+
+            self.memory.save_memory(
+                "favorite_framework",
+                framework
+            )
+
+            return (
+                f"Baik, saya akan mengingat bahwa framework favorit Anda adalah {framework}."
+            )
+
+        if (
+            "framework favorit saya apa"
+            in user_lower
+        ):
+
+            framework = self.memory.get_memory(
+                "favorite_framework"
+            )
+
+            if framework:
+
+                return (
+                    f"Framework favorit Anda adalah {framework}."
+                )
+
+            return (
+                "Saya belum mengetahui framework favorit Anda."
+            )
+    
 
         # ==================================================
         # AGENT ROUTER
