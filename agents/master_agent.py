@@ -25,6 +25,63 @@ class MasterAgent:
         user_lower = user_message.lower().strip()
 
         # ==================================================
+        # AUTO MEMORY EXTRACTION
+        # ==================================================
+
+        if user_lower.startswith(
+            "saya ingin menjadi "
+        ):
+
+            goal = user_message[
+                len("saya ingin menjadi "):
+            ].strip()
+
+            self.memory.save_memory(
+                "career_goal",
+                goal
+            )
+
+            return (
+                f"Baik, saya akan mengingat bahwa target karier Anda adalah {goal}."
+            )
+
+
+        if user_lower.startswith(
+            "saya sedang belajar "
+        ):
+
+            topic = user_message[
+                len("saya sedang belajar "):
+            ].strip()
+
+            self.memory.save_memory(
+                "current_learning",
+                topic
+            )
+
+            return (
+                f"Baik, saya akan mengingat bahwa Anda sedang belajar {topic}."
+            )
+
+
+        if user_lower.startswith(
+            "saya sedang membuat "
+        ):
+
+            project = user_message[
+                len("saya sedang membuat "):
+            ].strip()
+
+            self.memory.save_memory(
+                "current_project",
+                project
+            )
+
+            return (
+                f"Baik, saya akan mengingat bahwa Anda sedang membuat {project}."
+            )
+
+        # ==================================================
         # SMART MEMORY
         # ==================================================
 
@@ -118,8 +175,9 @@ class MasterAgent:
             )
 
         if (
-            "bahasa favorit saya apa"
-            in user_lower
+            "bahasa favorit saya apa" in user_lower
+            or
+            "apa bahasa favorit saya" in user_lower
         ):
 
             language = self.memory.get_memory(
@@ -161,6 +219,8 @@ class MasterAgent:
             "apa pendidikan saya" in user_lower
             or
             "saya mahasiswa apa" in user_lower
+            or
+            "pendidikan saya apa" in user_lower
         ):
 
             education = self.memory.get_memory(
@@ -200,6 +260,8 @@ class MasterAgent:
 
         if (
             "apa target karier saya" in user_lower
+            or
+            "target karier saya apa" in user_lower
         ):
 
             goal = self.memory.get_memory(
@@ -214,6 +276,32 @@ class MasterAgent:
 
             return (
                 "Saya belum mengetahui target karier Anda."
+            )
+        
+        # ==========================
+        # CURRENT LEARNING
+        # ==========================
+
+        if (
+            "apa yang sedang saya pelajari"
+            in user_lower
+            or
+            "saya sedang belajar apa"
+            in user_lower
+        ):
+
+            learning = self.memory.get_memory(
+                "current_learning"
+            )
+
+            if learning:
+
+                return (
+                    f"Saat ini Anda sedang belajar {learning}."
+                )
+
+            return (
+                "Saya belum mengetahui apa yang sedang Anda pelajari."
             )
         
         # ==========================
@@ -239,6 +327,8 @@ class MasterAgent:
 
         if (
             "apa skill saya" in user_lower
+            or
+            "skill saya apa" in user_lower
         ):
 
             skill = self.memory.get_memory(
@@ -277,8 +367,9 @@ class MasterAgent:
             )
 
         if (
-            "framework favorit saya apa"
-            in user_lower
+            "framework favorit saya apa" in user_lower
+            or
+            "apa framework favorit saya" in user_lower
         ):
 
             framework = self.memory.get_memory(
