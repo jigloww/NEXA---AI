@@ -37,6 +37,10 @@ class MasterAgent:
 
         user_lower = user_message.lower().strip()
 
+        self.auto_memory.extract(
+            user_message
+        )
+
         # ==========================================
         # PROFILE MEMORY
         # ==========================================
