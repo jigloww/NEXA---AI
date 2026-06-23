@@ -27,12 +27,23 @@ async def chat(
     context: ContextTypes.DEFAULT_TYPE
 ):
 
+    if not update.message:
+        return
+
     user_message = (
         update.message.text
     )
+    user_id = str(
+        update.effective_user.id
+    )
+    chat_id = str(
+        update.effective_chat.id
+    )
 
     response = agent.chat(
-        user_message
+        user_message,
+        user_id=user_id,
+        chat_id=chat_id
     )
 
     await update.message.reply_text(

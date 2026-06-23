@@ -33,12 +33,19 @@ class MasterAgent:
         self.business = BusinessAgent()
         self.investment = InvestmentAgent()
 
-    def chat(self, user_message):
+    def chat(
+        self,
+        user_message,
+        user_id=None,
+        chat_id=None
+    ):
 
         user_lower = user_message.lower().strip()
 
         self.auto_memory.extract(
-            user_message
+            user_message,
+            user_id=user_id,
+            chat_id=chat_id
         )
 
         # ==========================================
@@ -46,7 +53,9 @@ class MasterAgent:
         # ==========================================
 
         profile_response = self.profile_memory.handle(
-            user_message
+            user_message,
+            user_id=user_id,
+            chat_id=chat_id
         )
 
         if profile_response:
@@ -64,7 +73,9 @@ class MasterAgent:
 
             self.memory.save_memory(
                 "career_goal",
-                goal
+                goal,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -79,7 +90,9 @@ class MasterAgent:
 
             self.memory.save_memory(
                 "current_learning",
-                topic
+                topic,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -94,7 +107,9 @@ class MasterAgent:
 
             self.memory.save_memory(
                 "current_project",
-                project
+                project,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -175,10 +190,15 @@ class MasterAgent:
 
         self.memory.add_message(
             "User",
-            user_message
+            user_message,
+            user_id=user_id,
+            chat_id=chat_id
         )
 
-        context = self.memory.get_context()
+        context = self.memory.get_context(
+            user_id=user_id,
+            chat_id=chat_id
+        )
 
         # ==========================================
         # LONG TERM MEMORY INJECTION
@@ -186,7 +206,10 @@ class MasterAgent:
 
         memory_context = ""
 
-        for key, value in self.memory.get_all_memories():
+        for key, value in self.memory.get_all_memories(
+            user_id=user_id,
+            chat_id=chat_id
+        ):
             memory_context += (
                 f"{key}: {value}\n"
             )
@@ -213,7 +236,9 @@ Jawablah sebagai NEXA.
 
         self.memory.add_message(
             "NEXA",
-            response
+            response,
+            user_id=user_id,
+            chat_id=chat_id
         )
 
         return response

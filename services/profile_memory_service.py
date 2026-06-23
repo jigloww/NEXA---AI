@@ -4,7 +4,12 @@ class ProfileMemoryService:
 
         self.memory = memory
 
-    def handle(self, user_message):
+    def handle(
+        self,
+        user_message,
+        user_id=None,
+        chat_id=None
+    ):
 
         user_lower = user_message.lower().strip()
 
@@ -22,7 +27,9 @@ class ProfileMemoryService:
 
             self.memory.save_memory(
                 "user_name",
-                name
+                name,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -35,7 +42,9 @@ class ProfileMemoryService:
         ):
 
             name = self.memory.get_memory(
-                "user_name"
+                "user_name",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             if name:
@@ -62,7 +71,9 @@ class ProfileMemoryService:
 
             self.memory.save_memory(
                 "current_project",
-                project
+                project,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -76,7 +87,9 @@ class ProfileMemoryService:
         ):
 
             project = self.memory.get_memory(
-                "current_project"
+                "current_project",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             if project:
@@ -103,7 +116,9 @@ class ProfileMemoryService:
 
             self.memory.save_memory(
                 "favorite_language",
-                language
+                language,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -117,7 +132,9 @@ class ProfileMemoryService:
         ):
 
             language = self.memory.get_memory(
-                "favorite_language"
+                "favorite_language",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             if language:
@@ -144,7 +161,9 @@ class ProfileMemoryService:
 
             self.memory.save_memory(
                 "education",
-                education
+                education,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -160,7 +179,9 @@ class ProfileMemoryService:
         ):
 
             education = self.memory.get_memory(
-                "education"
+                "education",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             if education:
@@ -187,7 +208,9 @@ class ProfileMemoryService:
 
             self.memory.save_memory(
                 "career_goal",
-                goal
+                goal,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -201,7 +224,9 @@ class ProfileMemoryService:
         ):
 
             goal = self.memory.get_memory(
-                "career_goal"
+                "career_goal",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             if goal:
@@ -228,7 +253,9 @@ class ProfileMemoryService:
 
             self.memory.save_memory(
                 "current_learning",
-                learning
+                learning,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -244,7 +271,9 @@ class ProfileMemoryService:
         ):
 
             learning = self.memory.get_memory(
-                "current_learning"
+                "current_learning",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             if learning:
@@ -271,7 +300,9 @@ class ProfileMemoryService:
 
             self.memory.save_memory(
                 "skill",
-                skill
+                skill,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -285,7 +316,9 @@ class ProfileMemoryService:
         ):
 
             skill = self.memory.get_memory(
-                "skill"
+                "skill",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             if skill:
@@ -312,7 +345,9 @@ class ProfileMemoryService:
 
             self.memory.save_memory(
                 "favorite_framework",
-                framework
+                framework,
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             return (
@@ -326,7 +361,9 @@ class ProfileMemoryService:
         ):
 
             framework = self.memory.get_memory(
-                "favorite_framework"
+                "favorite_framework",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
             if framework:

@@ -12,6 +12,8 @@ sys.path.append(
 from agents.master_agent import MasterAgent
 
 agent = MasterAgent()
+LOCAL_USER_ID = "local_cli"
+LOCAL_CHAT_ID = "local_cli"
 
 print("=" * 40)
 print("      NEXA AI Assistant")
@@ -32,7 +34,9 @@ while True:
     try:
 
         response = agent.chat(
-            user_input
+            user_input,
+            user_id=LOCAL_USER_ID,
+            chat_id=LOCAL_CHAT_ID
         )
 
         print(

@@ -10,6 +10,24 @@ class MemoryService:
 
         initialize_database()
 
+    def _normalize_scope(
+        self,
+        user_id=None,
+        chat_id=None
+    ):
+
+        scoped_user_id = str(
+            user_id or "local_cli"
+        )
+        scoped_chat_id = str(
+            chat_id or scoped_user_id
+        )
+
+        return (
+            scoped_user_id,
+            scoped_chat_id
+        )
+
     # ==========================
     # SHORT TERM MEMORY
     # ==========================
@@ -17,42 +35,84 @@ class MemoryService:
     def add_message(
         self,
         role,
-        content
+        content,
+        user_id=None,
+        chat_id=None
     ):
 
-        conn = get_connection()
-
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            INSERT INTO memories (
-                role,
-                content
+        scoped_user_id, scoped_chat_id = (
+            self._normalize_scope(
+                user_id,
+                chat_id
             )
-            VALUES (?, ?)
-            """,
-            (role, content)
         )
-
-        conn.commit()
-        conn.close()
-
-    def get_context(self):
-
         conn = get_connection()
+        try:
+            cursor = conn.cursor()
 
-        cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO conversation_messages (
+                    user_id,
+                    chat_id,
+                    role,
+                    content,
+                    created_at
+                )
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """,
+                (
+                    scoped_user_id,
+                    scoped_chat_id,
+                    role,
+                    content
+                )
+            )
 
-        cursor.execute("""
-            SELECT role, content
-            FROM memories
-            ORDER BY id ASC
-        """)
+            conn.commit()
+        finally:
+            conn.close()
 
-        rows = cursor.fetchall()
+    def get_context(
+        self,
+        user_id=None,
+        chat_id=None,
+        limit=20
+    ):
 
-        conn.close()
+        scoped_user_id, scoped_chat_id = (
+            self._normalize_scope(
+                user_id,
+                chat_id
+            )
+        )
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+
+            cursor.execute(
+                """
+                SELECT role, content
+                FROM (
+                    SELECT role, content, id
+                    FROM conversation_messages
+                    WHERE user_id = ?
+                    AND chat_id = ?
+                    ORDER BY id DESC
+                    LIMIT ?
+                ) recent_messages
+                ORDER BY id ASC
+                """,
+                (
+                    scoped_user_id,
+                    scoped_chat_id,
+                    limit
+                )
+            )
+
+            rows = cursor.fetchall()
+        finally:
+            conn.close()
 
         context = ""
 
@@ -65,18 +125,37 @@ class MemoryService:
 
         return context
 
-    def clear(self):
+    def clear(
+        self,
+        user_id=None,
+        chat_id=None
+    ):
 
-        conn = get_connection()
-
-        cursor = conn.cursor()
-
-        cursor.execute(
-            "DELETE FROM memories"
+        scoped_user_id, scoped_chat_id = (
+            self._normalize_scope(
+                user_id,
+                chat_id
+            )
         )
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
 
-        conn.commit()
-        conn.close()
+            cursor.execute(
+                """
+                DELETE FROM conversation_messages
+                WHERE user_id = ?
+                AND chat_id = ?
+                """,
+                (
+                    scoped_user_id,
+                    scoped_chat_id
+                )
+            )
+
+            conn.commit()
+        finally:
+            conn.close()
 
     # ==========================
     # LONG TERM MEMORY
@@ -85,70 +164,121 @@ class MemoryService:
     def save_memory(
         self,
         key,
-        value
+        value,
+        user_id=None,
+        chat_id=None
     ):
 
-        conn = get_connection()
-
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            INSERT OR REPLACE INTO user_memory
-            (
-                key,
-                value
+        scoped_user_id, scoped_chat_id = (
+            self._normalize_scope(
+                user_id,
+                chat_id
             )
-            VALUES (?, ?)
-            """,
-            (key, value)
         )
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
 
-        conn.commit()
-        conn.close()
+            cursor.execute(
+                """
+                INSERT INTO user_memories (
+                    user_id,
+                    chat_id,
+                    key,
+                    value,
+                    created_at
+                )
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(user_id, chat_id, key)
+                DO UPDATE SET
+                    value = excluded.value,
+                    created_at = CURRENT_TIMESTAMP
+                """,
+                (
+                    scoped_user_id,
+                    scoped_chat_id,
+                    key,
+                    value
+                )
+            )
+
+            conn.commit()
+        finally:
+            conn.close()
 
     def get_memory(
         self,
-        key
+        key,
+        user_id=None,
+        chat_id=None
     ):
 
-        conn = get_connection()
-
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            SELECT value
-            FROM user_memory
-            WHERE key = ?
-            """,
-            (key,)
+        scoped_user_id, scoped_chat_id = (
+            self._normalize_scope(
+                user_id,
+                chat_id
+            )
         )
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
 
-        row = cursor.fetchone()
+            cursor.execute(
+                """
+                SELECT value
+                FROM user_memories
+                WHERE user_id = ?
+                AND chat_id = ?
+                AND key = ?
+                """,
+                (
+                    scoped_user_id,
+                    scoped_chat_id,
+                    key
+                )
+            )
 
-        conn.close()
+            row = cursor.fetchone()
+        finally:
+            conn.close()
 
         if row:
             return row[0]
 
         return None
 
-    def get_all_memories(self):
+    def get_all_memories(
+        self,
+        user_id=None,
+        chat_id=None
+    ):
 
-        conn = get_connection()
-
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            SELECT key, value
-            FROM user_memory
-            """
+        scoped_user_id, scoped_chat_id = (
+            self._normalize_scope(
+                user_id,
+                chat_id
+            )
         )
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
 
-        rows = cursor.fetchall()
+            cursor.execute(
+                """
+                SELECT key, value
+                FROM user_memories
+                WHERE user_id = ?
+                AND chat_id = ?
+                ORDER BY key ASC
+                """,
+                (
+                    scoped_user_id,
+                    scoped_chat_id
+                )
+            )
 
-        conn.close()
+            rows = cursor.fetchall()
+        finally:
+            conn.close()
 
         return rows

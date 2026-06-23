@@ -3,7 +3,12 @@ class AutoMemoryService:
     def __init__(self, memory):
         self.memory = memory
 
-    def extract(self, user_message):
+    def extract(
+        self,
+        user_message,
+        user_id=None,
+        chat_id=None
+    ):
 
         user_lower = user_message.lower()
 
@@ -15,7 +20,9 @@ class AutoMemoryService:
 
             self.memory.save_memory(
                 "favorite_framework",
-                "Flutter"
+                "Flutter",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
         # =================================
@@ -26,7 +33,9 @@ class AutoMemoryService:
 
             self.memory.save_memory(
                 "favorite_language",
-                "Python"
+                "Python",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
         # =================================
@@ -40,7 +49,9 @@ class AutoMemoryService:
 
             self.memory.save_memory(
                 "current_learning",
-                "Machine Learning"
+                "Machine Learning",
+                user_id=user_id,
+                chat_id=chat_id
             )
 
         if (
@@ -50,5 +61,7 @@ class AutoMemoryService:
 
             self.memory.save_memory(
                 "current_learning",
-                "Deep Learning"
+                "Deep Learning",
+                user_id=user_id,
+                chat_id=chat_id
             )
